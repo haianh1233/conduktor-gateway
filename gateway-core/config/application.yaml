@@ -1,6 +1,20 @@
 kafkaSelector:
   type: file
   path: gateway-core/config/kafka.config
+hostPortConfiguration:
+  gatewayBindHost: 0.0.0.0
+  gatewayHost: localhost
+  portRange: 6969:6975
+authenticationConfig:
+  authenticatorType: SSL
+  sslConfig:
+    updateContextIntervalMinutes: 5
+    keyStore:
+      keyStorePath: gateway-core/config/localhost.jks
+      keyStorePassword: thisispassword
+      keyPassword: thisispassword
+      keyStoreType: pkcs12
+      updateIntervalMsecs: 60000
 interceptors:
   - name: loggingInterceptor
     pluginClass: io.conduktor.example.loggerinterceptor.LoggerInterceptorPlugin
