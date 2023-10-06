@@ -10,9 +10,9 @@ authenticationConfig:
   sslConfig:
     updateContextIntervalMinutes: 5
     keyStore:
-      keyStorePath: gateway-core/config/localhost.jks
-      keyStorePassword: thisispassword
-      keyPassword: thisispassword
+      keyStorePath: gateway-core/config/kafka.gateway.keystore.jks
+      keyStorePassword: confluent
+      keyPassword: confluent
       keyStoreType: pkcs12
       updateIntervalMsecs: 60000
 interceptors:

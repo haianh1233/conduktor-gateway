@@ -162,19 +162,22 @@ public abstract class BrokerManager implements AutoCloseable {
             keystore.aliases().asIterator().forEachRemaining(alias ->
                     {
                         try {
-                            var key = (PrivateKey) keystore.getKey(alias, loaded.getKeyPassword());
                             var cert = (X509Certificate) keystore.getCertificate(alias);
 
-                            var chain = Arrays.stream(keystore.getCertificateChain(alias))
-                                    .map(x -> (X509Certificate) x)
-                                    .toList();
-                            var domains = parseHostNames(cert);
-                            log.info("Detected domains for {} alias : {}", alias, String.join(", ", domains));
-                            var sslContext = SslContextBuilder.forServer(key, chain).build();
-                            domains.forEach(domain -> {
-                                expandedKeystore.put(domain, sslContext);
-                                log.info("Creating ssl context for {} domain", domain);
-                            });
+                            // Check if the certificate is not a CA certificate
+                            if (!isCACertificate(cert)) {
+                                var key = (PrivateKey) keystore.getKey(alias, loaded.getKeyPassword());
+                                var chain = Arrays.stream(keystore.getCertificateChain(alias))
+                                        .map(x -> (X509Certificate) x)
+                                        .toList();
+                                var domains = parseHostNames(cert);
+                                log.info("Detected domains for {} alias: {}", alias, String.join(", ", domains));
+                                var sslContext = SslContextBuilder.forServer(key, chain).build();
+                                domains.forEach(domain -> {
+                                    expandedKeystore.put(domain, sslContext);
+                                    log.info("Creating ssl context for {} domain", domain);
+                                });
+                            }
                         } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException |
                                  IOException | CertificateEncodingException e) {
                             throw new RuntimeException("Error loading " + alias + " alias from initial keystore to expanded one", e);
@@ -185,6 +188,19 @@ public abstract class BrokerManager implements AutoCloseable {
         } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException("Error while expanding keystore", e);
         }
+    }
+
+    private boolean isCACertificate(X509Certificate certificate) {
+        // Check if the certificate has the BasicConstraints extension and it's marked as a CA certificate
+        if (certificate.getExtensionValue("2.5.29.19") != null) {
+            return certificate.getBasicConstraints() >= 0;
+        }
+        // Check if the certificate has the KeyUsage extension and it's marked as a keyCertSign
+        if (certificate.getExtensionValue("2.5.29.15") != null) {
+            boolean[] keyUsage = certificate.getKeyUsage();
+            return keyUsage != null && keyUsage[5]; // 5 corresponds to keyCertSign
+        }
+        return false;
     }
 
     public Map<String, Endpoint> getRealToGatewayMap(MetadataResponseData.MetadataResponseBrokerCollection brokers) {
