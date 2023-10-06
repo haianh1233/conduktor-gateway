@@ -25,3 +25,12 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: 1
       KAFKA_BROKER_ID: 1
+
+  kafka-client:
+    image: "confluentinc/cp-kafka:latest"
+    container_name: kafka-client
+    network_mode: host
+    command: [ "/bin/bash", "-c", "sleep infinity" ]
+    volumes:
+      - ./kafka-playground/ssl/security:/etc/kafka/secrets
+      - ./kafka-playground/ssl/client:/etc/kafka/client
