@@ -3,6 +3,7 @@ package io.conduktor.gateway.integration.tls.test;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.config.internals.BrokerSecurityConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 

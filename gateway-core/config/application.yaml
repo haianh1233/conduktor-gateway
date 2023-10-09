@@ -15,6 +15,12 @@ authenticationConfig:
       keyPassword: confluent
       keyStoreType: pkcs12
       updateIntervalMsecs: 60000
+    trustStore:
+      trustStorePath: gateway-core/config/kafka.gateway.truststore.jks
+      trustStorePassword: confluent
+      keyPassword: confluent
+      trustStoreType: jks
+      updateIntervalMsecs: 60000
 interceptors:
   - name: loggingInterceptor
     pluginClass: io.conduktor.example.loggerinterceptor.LoggerInterceptorPlugin

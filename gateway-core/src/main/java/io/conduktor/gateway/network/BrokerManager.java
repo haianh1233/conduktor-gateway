@@ -29,8 +29,10 @@ import io.conduktor.gateway.service.ClientService;
 import io.conduktor.gateway.thread.GatewayThread;
 import io.conduktor.gateway.thread.UpStreamResource;
 import io.conduktor.gateway.tls.FileSystemKeyStoreLoader;
+import io.conduktor.gateway.tls.FileSystemTrustStoreLoader;
 import io.conduktor.gateway.tls.Filesystem;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
+import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -150,7 +153,7 @@ public abstract class BrokerManager implements AutoCloseable {
         return hostNameList;
     }
 
-
+    // TODO load truststore and keystore in a single method
     public void loadExpandedKeyStore() {
         log.info("Loading keystore");
         var sslConfig = authenticationConfig.getSslConfig();
@@ -159,6 +162,17 @@ public abstract class BrokerManager implements AutoCloseable {
             var loaded = keyStoreProvider.load();
             var keystore = loaded.getKeyStore();
             var expandedKeystore = new HashMap<String, SslContext>();
+
+            var trustStoreProvider = new FileSystemTrustStoreLoader(Filesystem.DEFAULT_FILESYSTEM, sslConfig.getTrustStore());
+            var loadedTrustStore = trustStoreProvider.load();
+            var trustStore = loadedTrustStore.getKeyStore();
+
+            var trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+
+            // TODO hardcode client auth to REQUIRE
+            ClientAuth clientAuth = ClientAuth.REQUIRE;
+
             keystore.aliases().asIterator().forEachRemaining(alias ->
                     {
                         try {
@@ -172,7 +186,11 @@ public abstract class BrokerManager implements AutoCloseable {
                                         .toList();
                                 var domains = parseHostNames(cert);
                                 log.info("Detected domains for {} alias: {}", alias, String.join(", ", domains));
-                                var sslContext = SslContextBuilder.forServer(key, chain).build();
+                                var sslContext = SslContextBuilder
+                                        .forServer(key, chain)
+                                        .trustManager(trustManagerFactory)
+                                        .clientAuth(clientAuth)
+                                        .build();
                                 domains.forEach(domain -> {
                                     expandedKeystore.put(domain, sslContext);
                                     log.info("Creating ssl context for {} domain", domain);

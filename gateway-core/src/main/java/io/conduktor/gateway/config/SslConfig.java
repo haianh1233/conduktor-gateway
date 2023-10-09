@@ -16,6 +16,7 @@
 package io.conduktor.gateway.config;
 
 import io.conduktor.gateway.tls.KeyStoreConfig;
+import io.conduktor.gateway.tls.TrustStoreConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -31,6 +32,9 @@ public class SslConfig {
     @NotNull
     @Valid
     private KeyStoreConfig keyStore;
+    @NotNull
+    @Valid
+    private TrustStoreConfig trustStore;
     @Min(1)
     @Max(Integer.MAX_VALUE)
     private int updateContextIntervalMinutes;

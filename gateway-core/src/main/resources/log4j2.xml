@@ -18,29 +18,29 @@
     </appenders>
 
     <loggers>
-        <logger name="org.apache.kafka" level="warn" additivity="false">
+        <logger name="org.apache.kafka" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.kcache" level="warn" additivity="false">
+        <logger name="io.kcache" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.vertx" level="warn" additivity="false">
+        <logger name="io.vertx" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.netty" level="error" additivity="false">
+        <logger name="io.netty" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
 
-        <logger name="io.conduktor" level="info" additivity="false">
+        <logger name="io.conduktor" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.conduktor.gateway.authorization" level="error" additivity="false">
+        <logger name="io.conduktor.gateway.authorization" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.conduktor.gateway.rebuilder.components" level="error" additivity="false">
+        <logger name="io.conduktor.gateway.rebuilder.components" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
-        <logger name="io.conduktor.gateway.service" level="info" additivity="false">
+        <logger name="io.conduktor.gateway.service" level="debug" additivity="false">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
         <logger name="io.micrometer" level="error" additivity="false">
@@ -51,7 +51,7 @@
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </logger>
 
-        <root level="warn">
+        <root level="debug">
             <appender-ref ref="${env:LOG4J2_APPENDER_LAYOUT}"/>
         </root>
     </loggers>

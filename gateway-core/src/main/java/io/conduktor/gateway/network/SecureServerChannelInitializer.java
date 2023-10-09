@@ -17,13 +17,11 @@ package io.conduktor.gateway.network;
 
 import io.conduktor.gateway.metrics.MetricsRegistryProvider;
 import io.conduktor.gateway.network.handler.CountingDuplexHandler;
-import io.conduktor.gateway.network.handler.PostHandshakeHandler;
+import io.conduktor.gateway.network.handler.CustomSniHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.util.DomainWildcardMappingBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,14 +63,9 @@ public class SecureServerChannelInitializer extends GatewayChannelInitializer {
         var contexts = sslContextSupplier.get();
         var builder = new DomainWildcardMappingBuilder<SslContext>(1, contexts.values().iterator().next());
 
-        SslHandler sslHandler = new SslHandler(sslContextSupplier.get().values().iterator().next().newEngine(ch.alloc()));
-        pipeline.addLast(sslHandler);
-
         contexts.forEach(builder::add);
-        pipeline.addLast(new SniHandler(builder.build()));
-        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, SIZE_BYTES, 0, SIZE_BYTES));
-        ch.pipeline().addLast(new CountingDuplexHandler(metricsRegistryProvider));
-        ch.pipeline().addLast(new PostHandshakeHandler(sslHandler));
+        pipeline.addLast(new CustomSniHandler(builder.build()));
+        pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, SIZE_BYTES, 0, SIZE_BYTES));
+        pipeline.addLast(new CountingDuplexHandler(metricsRegistryProvider));
     }
-
 }
