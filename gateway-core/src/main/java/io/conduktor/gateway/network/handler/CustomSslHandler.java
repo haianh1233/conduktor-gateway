@@ -28,32 +28,32 @@ public class CustomSslHandler extends SslHandler {
                 log.info("Get client certificates");
 
                 // Add a listener to be notified when the SSL handshake completes
-                ctx.pipeline().get(SslHandler.class).handshakeFuture().addListener(
-                        (GenericFutureListener<Future<Channel>>) future -> {
-                            if (future.isSuccess()) {
-                                SSLSession sslSession = engine().getSession();
-                                X509Certificate[] clientCertificates = (X509Certificate[]) sslSession.getPeerCertificates();
-
-                                for (X509Certificate clientCertificate : clientCertificates) {
-                                    if (isCACertificate(clientCertificate)) {
-                                        log.info("-------------------------------------------");
-                                        log.info("Client certificate is a CA certificate");
-                                        log.info("Client certificate: {}", clientCertificate);
-
-                                    } else {
-                                        log.info("-------------------------------------------");
-                                        log.info("Client certificate is not a CA certificate");
-                                        log.info("Client certificate: {}", clientCertificate);
-                                        log.info("Client certificate subject: {}", clientCertificate.getSubjectDN());
-                                    }
-                                }
-                                // Now you have access to the client certificates in the clientCertificates array
-                                // You can process them as needed
-                            } else {
-                                log.info("Handshake failed: {}", future.cause().getMessage());
-                            }
-                        }
-                );
+//                ctx.pipeline().get(SslHandler.class).handshakeFuture().addListener(
+//                        (GenericFutureListener<Future<Channel>>) future -> {
+//                            if (future.isSuccess()) {
+//                                SSLSession sslSession = engine().getSession();
+//                                X509Certificate[] clientCertificates = (X509Certificate[]) sslSession.getPeerCertificates();
+//
+//                                for (X509Certificate clientCertificate : clientCertificates) {
+//                                    if (isCACertificate(clientCertificate)) {
+//                                        log.info("-------------------------------------------");
+//                                        log.info("Client certificate is a CA certificate");
+//                                        log.info("Client certificate: {}", clientCertificate);
+//
+//                                    } else {
+//                                        log.info("-------------------------------------------");
+//                                        log.info("Client certificate is not a CA certificate");
+//                                        log.info("Client certificate: {}", clientCertificate);
+//                                        log.info("Client certificate subject: {}", clientCertificate.getSubjectDN());
+//                                    }
+//                                }
+//                                // Now you have access to the client certificates in the clientCertificates array
+//                                // You can process them as needed
+//                            } else {
+//                                log.info("Handshake failed: {}", future.cause().getMessage());
+//                            }
+//                        }
+//                );
             } else {
                 log.info("SNI detection failed: {}", handshakeEvent.cause().getMessage());
 

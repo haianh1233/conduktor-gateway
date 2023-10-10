@@ -21,6 +21,7 @@ import io.conduktor.gateway.network.handler.CustomSniHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.DomainWildcardMappingBuilder;
 import lombok.extern.slf4j.Slf4j;

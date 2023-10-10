@@ -259,9 +259,10 @@ public abstract class BrokerManager implements AutoCloseable {
         return gatewaySocketChannel -> {
             var gatewayThread = (GatewayThread) upStreamResource.next();
             SecurityHandler authenticator = switch (authenticationConfig.getAuthenticatorType()) {
-                case NONE, SSL -> new NoneSecurityHandler();
+                case NONE -> new NoneSecurityHandler();
                 case SASL_PLAINTEXT, SASL_SSL ->
                         new SaslSecurityHandler(gatewayThread, new BasicUserPoolSaslAuthentication(authenticationConfig.getUserPool()), gatewaySocketChannel, metricsRegistryProvider);
+                case SSL -> new SslSecurityHandler(gatewaySocketChannel);
             };
             var gatewayChannel = new GatewayChannel(authenticator, this, gatewaySocketChannel, gatewayThread, gatewayHost);
             authenticator.setGatewayChannel(gatewayChannel);
