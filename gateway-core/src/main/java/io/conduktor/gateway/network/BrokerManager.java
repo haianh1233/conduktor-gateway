@@ -16,16 +16,12 @@
 package io.conduktor.gateway.network;
 
 import com.google.common.collect.Lists;
-import io.conduktor.gateway.authorization.BasicUserPoolSaslAuthentication;
-import io.conduktor.gateway.authorization.NoneSecurityHandler;
-import io.conduktor.gateway.authorization.SaslSecurityHandler;
-import io.conduktor.gateway.authorization.SecurityHandler;
+import io.conduktor.gateway.authorization.*;
 import io.conduktor.gateway.config.AuthenticationConfig;
 import io.conduktor.gateway.config.AuthenticatorType;
 import io.conduktor.gateway.config.Endpoint;
 import io.conduktor.gateway.config.HostPortConfiguration;
 import io.conduktor.gateway.metrics.MetricsRegistryProvider;
-import io.conduktor.gateway.service.ClientService;
 import io.conduktor.gateway.thread.GatewayThread;
 import io.conduktor.gateway.thread.UpStreamResource;
 import io.conduktor.gateway.tls.FileSystemKeyStoreLoader;
@@ -46,6 +42,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -188,7 +185,23 @@ public abstract class BrokerManager implements AutoCloseable {
                                 log.info("Detected domains for {} alias: {}", alias, String.join(", ", domains));
                                 var sslContext = SslContextBuilder
                                         .forServer(key, chain)
-                                        .trustManager(trustManagerFactory)
+                                        // TODO add an TrustManager that will accept all client certs
+                                        .trustManager(new X509TrustManager() {
+                                            @Override
+                                            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                                                // No verification, trusting all client certs
+                                            }
+
+                                            @Override
+                                            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                                                // No verification, trusting all server certs
+                                            }
+
+                                            @Override
+                                            public X509Certificate[] getAcceptedIssuers() {
+                                                return new X509Certificate[0];
+                                            }
+                                        })
                                         .clientAuth(clientAuth)
                                         .build();
                                 domains.forEach(domain -> {
@@ -259,10 +272,12 @@ public abstract class BrokerManager implements AutoCloseable {
         return gatewaySocketChannel -> {
             var gatewayThread = (GatewayThread) upStreamResource.next();
             SecurityHandler authenticator = switch (authenticationConfig.getAuthenticatorType()) {
-                case NONE -> new NoneSecurityHandler();
+                case NONE ->
+                        new NoneSecurityHandler();
                 case SASL_PLAINTEXT, SASL_SSL ->
                         new SaslSecurityHandler(gatewayThread, new BasicUserPoolSaslAuthentication(authenticationConfig.getUserPool()), gatewaySocketChannel, metricsRegistryProvider);
-                case SSL -> new SslSecurityHandler(gatewaySocketChannel);
+                case SSL ->
+                        new SslSecurityHandler(gatewaySocketChannel, authenticationConfig.getSslConfig().getTrustedCNs());
             };
             var gatewayChannel = new GatewayChannel(authenticator, this, gatewaySocketChannel, gatewayThread, gatewayHost);
             authenticator.setGatewayChannel(gatewayChannel);

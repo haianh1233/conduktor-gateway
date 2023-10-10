@@ -24,6 +24,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class SslConfig {
@@ -35,6 +37,8 @@ public class SslConfig {
     @NotNull
     @Valid
     private TrustStoreConfig trustStore;
+    @NotNull
+    private List<String> trustedCNs;
     @Min(1)
     @Max(Integer.MAX_VALUE)
     private int updateContextIntervalMinutes;

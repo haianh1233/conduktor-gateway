@@ -21,6 +21,8 @@ authenticationConfig:
       keyPassword: confluent
       trustStoreType: jks
       updateIntervalMsecs: 60000
+    trustedCNs:
+      - "kafka-client"
 interceptors:
   - name: loggingInterceptor
     pluginClass: io.conduktor.example.loggerinterceptor.LoggerInterceptorPlugin
