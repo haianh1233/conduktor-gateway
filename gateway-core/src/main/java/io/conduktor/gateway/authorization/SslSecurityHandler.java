@@ -39,7 +39,7 @@ public class SslSecurityHandler implements SecurityHandler {
 
     @Override
     public boolean complete() {
-        SslHandler sslHandler = gatewaySocketChannel.pipeline().get(CustomSslHandler.class);
+        SslHandler sslHandler = gatewaySocketChannel.pipeline().get(SslHandler.class);
 
         if (sslHandler == null) {
             log.debug("No SSL handler found in the pipeline");
@@ -87,6 +87,7 @@ public class SslSecurityHandler implements SecurityHandler {
 
         this.clientCertificates = clientCertificates;
         this.clientTrustedCN = clientTrustedCN;
+        log.debug("Client CN: {}", clientTrustedCN);
         return true;
     }
 

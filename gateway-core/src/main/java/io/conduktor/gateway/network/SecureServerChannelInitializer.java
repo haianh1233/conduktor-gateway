@@ -65,7 +65,7 @@ public class SecureServerChannelInitializer extends GatewayChannelInitializer {
         var builder = new DomainWildcardMappingBuilder<SslContext>(1, contexts.values().iterator().next());
 
         contexts.forEach(builder::add);
-        pipeline.addLast(new CustomSniHandler(builder.build()));
+        pipeline.addLast(new SniHandler(builder.build()));
         pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, SIZE_BYTES, 0, SIZE_BYTES));
         pipeline.addLast(new CountingDuplexHandler(metricsRegistryProvider));
     }
