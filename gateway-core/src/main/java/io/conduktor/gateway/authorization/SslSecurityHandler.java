@@ -68,7 +68,7 @@ public class SslSecurityHandler implements SecurityHandler {
 
             cn = getClientCN(subjectDN, cn);
             if (cn != null) {
-                log.debug("Client certificate CN: {}", cn);
+                //log.debug("Client certificate CN: {}", cn);
                 clientCNs.add(cn);
             }
         });
