@@ -19,6 +19,7 @@ import io.conduktor.gateway.model.User;
 import io.conduktor.gateway.network.GatewayChannel;
 import io.netty.buffer.ByteBuf;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.Closeable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +29,7 @@ public interface SecurityHandler extends Closeable {
 
     void authenticate(ByteBuf byteBuf) throws Exception;
 
-    boolean complete();
+    boolean complete() throws SSLPeerUnverifiedException;
 
     Optional<User> getUser();
 
